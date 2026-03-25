@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-add-is-read-to-posts
+      author: samira
+      changes:
+        - addColumn:
+            tableName: posts
+            columns:
+              - column:
+                  name: is_read
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: posts
+            indexName: idx_posts_is_read
+            columns:
+              - column:
+                  name: is_read

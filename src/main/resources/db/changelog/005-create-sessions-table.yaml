@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-salt-to-users
+      author: samira
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: salt
+                  type: VARCHAR(32)
+                  constraints:
+                    nullable: false
+                    defaultValue: ""
+
+  - changeSet:
+      id: 006-create-sessions-table
+      author: samira
+      changes:
+        - createTable:
+            tableName: sessions
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_sessions_user
+                    references: users(id)
+                    deleteCascade: true
+              - column:
+                  name: session_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
