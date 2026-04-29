@@ -36,7 +36,7 @@
                     <a href="/feed/post/${post.id}">${post.title != null ? post.title : "Без названия"}</a>
                 </h3>
                 <div class="post-meta">
-                    <span>Источник: ${post.sourceId}</span>
+                    <span>Источник: ${post.source.name}</span>
                     <span>
                         <c:choose>
                             <c:when test="${post.read}">

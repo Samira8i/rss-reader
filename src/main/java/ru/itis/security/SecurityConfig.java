@@ -16,9 +16,12 @@ import ru.itis.repository.UserRepository;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
-    public SecurityConfig(UserRepository userRepository) {
+    public SecurityConfig(UserRepository userRepository,
+                          CustomOAuth2UserService customOAuth2UserService) {
         this.userRepository = userRepository;
+        this.customOAuth2UserService = customOAuth2UserService;
     }
 
     @Bean
@@ -29,21 +32,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Разрешаем все запросы без авторизации
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login", "/css/**").permitAll()
-                        .anyRequest().authenticated()  // ← защитить все остальное
+                        .anyRequest().permitAll()
                 )
+                // Настройка формы логина
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/posts", true)  // ← после логина на ленту
+                        .defaultSuccessUrl("/feed", true)
                         .permitAll()
                 )
+                // Настройка OAuth2
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/auth/login")
+                        .defaultSuccessUrl("/feed", true)
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                )
+                // Настройка выхода
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .logoutSuccessUrl("/auth/login?logout=true")
                         .permitAll()
-                );
+                )
+                // Отключаем CSRF для POST запросов из форм
+                .csrf(csrf -> csrf.disable());
+
         return http.build();
     }
 

@@ -45,7 +45,7 @@
 
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>ru.itis.config.Config,ru.itis.config.JpaConfig,ru.itis.config.LiquibaseConfig</param-value>
+        <param-value>ru.itis.config.Config,ru.itis.config.JpaConfig,ru.itis.config.LiquibaseConfig,ru.itis.security.SecurityConfig</param-value>
     </context-param>
 
     <listener>

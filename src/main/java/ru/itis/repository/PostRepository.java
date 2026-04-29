@@ -4,17 +4,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.itis.model.Post;;
+import ru.itis.model.Post;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+
+    // ✅ ИСПРАВЛЕНО: добавлен JOIN FETCH
     @Query("SELECT p FROM Post p " +
-            "WHERE p.source.user.id = :userId " +
+            "JOIN FETCH p.source s " +
+            "WHERE s.user.id = :userId " +
             "ORDER BY p.publishedAt DESC NULLS LAST, p.createdAt DESC")
     List<Post> findByUserIdOrderByDate(@Param("userId") Long userId, Pageable pageable);
 
+    // ✅ ИСПРАВЛЕНО: добавлен JOIN FETCH
     @Query("SELECT p FROM Post p " +
-            "WHERE p.source.user.id = :userId AND p.read = :read " +
+            "JOIN FETCH p.source s " +
+            "WHERE s.user.id = :userId AND p.read = :read " +
             "ORDER BY p.publishedAt DESC NULLS LAST, p.createdAt DESC")
     List<Post> findByUserIdAndReadStatus(@Param("userId") Long userId,
                                          @Param("read") boolean read,
