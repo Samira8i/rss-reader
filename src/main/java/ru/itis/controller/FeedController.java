@@ -1,50 +1,40 @@
 package ru.itis.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.itis.model.Post;
 import ru.itis.model.User;
 import ru.itis.service.RssService;
-
-import java.util.List;
+import ru.itis.service.UserService;
 
 @Controller
-@RequestMapping("/feed")
 public class FeedController {
 
     private final RssService rssService;
+    private final UserService userService;
 
-    public FeedController(RssService rssService) {
+    public FeedController(RssService rssService, UserService userService) {
         this.rssService = rssService;
+        this.userService = userService;
     }
 
-    @GetMapping
-    public String getFeed(HttpServletRequest request,
-                          @RequestParam(name = "page", defaultValue = "0") int page,
-                          @RequestParam(name = "status", required = false) Boolean read,
+    @GetMapping("/feed")
+    public String getFeed(@RequestParam(defaultValue = "0") int page,
+                          @RequestParam(required = false) Boolean read,
                           Model model) {
-
-        User user = (User) request.getAttribute("currentUser");
+        User user = userService.getCurrentUser();
 
         if (user == null) {
             return "redirect:/auth/login";
         }
 
         int pageSize = 10;
+        rssService.updateAllUserSources(user.getId()); // обновляем посты из источников
 
-        //вот короче как конвертер работает, то есть автоматом в бул переводит
-        System.out.println("Получен параметр status: " + request.getParameter("status"));
-        System.out.println("После конвертера read = " + read);
-
-        // передаю read в сервис для фильтрации
-        // получаю посты пользователя с пагинацией и фильтром по статусу
-        List<Post> posts = rssService.getUserFeed(user.getId(), page, pageSize, read);
-        // Считаю общее количество постов
+        java.util.List<Post> posts = rssService.getUserFeed(user.getId(), page, pageSize, read);
         int totalPosts = rssService.getUserFeedCount(user.getId(), read);
         int totalPages = (int) Math.ceil((double) totalPosts / pageSize);
 
@@ -55,17 +45,14 @@ public class FeedController {
         model.addAttribute("hasNext", page < totalPages - 1);
         model.addAttribute("user", user);
         model.addAttribute("currentStatus", read);
-        model.addAttribute("statusParam", request.getParameter("status"));
+        model.addAttribute("statusParam", read == null ? "" : (read ? "read" : "unread"));
 
         return "feed";
     }
 
-    @GetMapping("/post/{id}")
-    public String getPost(@PathVariable("id") Long id,
-                          HttpServletRequest request,
-                          Model model) {
-
-        User user = (User) request.getAttribute("currentUser");
+    @GetMapping("/feed/post/{id}")
+    public String getPost(@PathVariable Long id, Model model) {
+        User user = userService.getCurrentUser();
 
         if (user == null) {
             return "redirect:/auth/login";
@@ -74,7 +61,6 @@ public class FeedController {
         try {
             Post post = rssService.getPostById(id, user.getId());
             rssService.markPostAsRead(id, user.getId());
-
             model.addAttribute("post", post);
             model.addAttribute("user", user);
             return "post";

@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-drop-sessions-table
+      author: samira
+      changes:
+        - dropTable:
+            tableName: sessions

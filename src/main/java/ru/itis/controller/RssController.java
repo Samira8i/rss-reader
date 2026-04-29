@@ -1,6 +1,5 @@
 package ru.itis.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,20 +10,23 @@ import ru.itis.exception.InvalidRssUrlException;
 import ru.itis.exception.SourceAlreadyExistsException;
 import ru.itis.model.User;
 import ru.itis.service.RssService;
+import ru.itis.service.UserService;
 
 @Controller
 @RequestMapping("/sources")
 public class RssController {
 
     private final RssService rssService;
+    private final UserService userService;
 
-    public RssController(RssService rssService) {
+    public RssController(RssService rssService, UserService userService) {
         this.rssService = rssService;
+        this.userService = userService;
     }
 
     @GetMapping
-    public String listSources(HttpServletRequest request, Model model) {
-        User user = (User) request.getAttribute("currentUser");
+    public String listSources(Model model) {
+        User user = userService.getCurrentUser();
 
         if (user == null) {
             return "redirect:/auth/login";
@@ -40,9 +42,8 @@ public class RssController {
     @PostMapping("/add")
     public String addSource(@Valid @ModelAttribute("sourceForm") RssSourceForm form,
                             BindingResult bindingResult,
-                            HttpServletRequest request,
                             Model model) {
-        User user = (User) request.getAttribute("currentUser");
+        User user = userService.getCurrentUser();
 
         if (user == null) {
             return "redirect:/auth/login";
@@ -55,7 +56,7 @@ public class RssController {
         }
 
         try {
-            var source = rssService.addSource(form, user.getId());
+            rssService.addSource(form, user.getId());
             return "redirect:/sources?success=added";
         } catch (SourceAlreadyExistsException | InvalidRssUrlException e) {
             bindingResult.rejectValue("url", "error.url", e.getMessage());
@@ -72,8 +73,8 @@ public class RssController {
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteSource(@PathVariable("id") Long id, HttpServletRequest request) {
-        User user = (User) request.getAttribute("currentUser");
+    public String deleteSource(@PathVariable Long id) {
+        User user = userService.getCurrentUser();
 
         if (user == null) {
             return "redirect:/auth/login";

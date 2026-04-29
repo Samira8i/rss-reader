@@ -11,3 +11,7 @@ databaseChangeLog:
       file: db/changelog/005-create-sessions-table.yaml
   - include:
       file: db/changelog/006-add-is-read-to-posts.yaml
+  - include:
+      file: db/changelog/007-drop-sessions-table.yaml
+  - include:
+      file: db/changelog/008-drop-salt-column.yaml  # Добавить эту строку

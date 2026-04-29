@@ -1,6 +1,5 @@
 package ru.itis.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +17,13 @@ import ru.itis.formatter.LocalDateTimeFormatter;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "ru.itis.controller",
+@ComponentScan(
+        basePackages = "ru.itis.controller",
         includeFilters = @ComponentScan.Filter(
                 type = FilterType.ANNOTATION,
                 value = Controller.class
-        ))
+        )
+)
 public class MvcConfigurer implements WebMvcConfigurer {
 
     @Bean
@@ -31,6 +32,7 @@ public class MvcConfigurer implements WebMvcConfigurer {
         resolver.setPrefix("/WEB-INF/jsp/");
         resolver.setSuffix(".jsp");
         resolver.setViewClass(JstlView.class);
+        resolver.setRedirectContextRelative(true);
         return resolver;
     }
 
@@ -39,18 +41,9 @@ public class MvcConfigurer implements WebMvcConfigurer {
         registry.addResourceHandler("/css/**").addResourceLocations("/css/");
     }
 
-    @Autowired
-    private LocalDateTimeFormatter localDateTimeFormatter;
-
-    @Autowired
-    private StringToReadStatusConverter readStatusConverter;
-
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        // Регистрирую конвертер для статуса (read/unread → Boolean)
-        registry.addConverter(readStatusConverter);
-
-        // Регистрирую форматтер для отображения LocalDateTime в JSP
-        registry.addFormatter(localDateTimeFormatter);
+        registry.addConverter(new StringToReadStatusConverter());
+        registry.addFormatter(new LocalDateTimeFormatter());
     }
 }

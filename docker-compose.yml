@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: rss-postgres
+    environment:
+      POSTGRES_DB: rssdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rss-network
+
+  tomcat:
+    build: .
+    container_name: rss-tomcat
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: rssdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    networks:
+      - rss-network
+
+volumes:
+  postgres_data:
+
+networks:
+  rss-network:
+    driver: bridge
