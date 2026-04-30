@@ -28,6 +28,7 @@ public class FeedController {
         if (user == null) {
             return "redirect:/auth/login";
         }
+        rssService.checkForUpdates(user.getId());
 
         model.addAttribute("user", user);
         System.out.println("Пользователь зашел на /feed: " + user.getUsername());

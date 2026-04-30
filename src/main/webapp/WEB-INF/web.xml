@@ -6,8 +6,6 @@
          version="6.0">
 
     <display-name>RSS Reader</display-name>
-
-    <!-- Spring Security Filter - должен быть первым -->
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>

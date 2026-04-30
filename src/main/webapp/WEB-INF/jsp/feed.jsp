@@ -17,22 +17,22 @@
             font-size: 14px;
             margin-bottom: 10px;
         }
+        .post-meta span {
+            margin-right: 15px;
+        }
+        .read-status {
+            font-weight: bold;
+        }
+        .read-status.read {
+            color: green;
+        }
+        .read-status.unread {
+            color: blue;
+        }
         .loading {
             text-align: center;
             padding: 20px;
             display: none;
-        }
-        .filters {
-            margin-bottom: 20px;
-        }
-        .filters a {
-            margin-right: 10px;
-            cursor: pointer;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .filters a:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
@@ -44,13 +44,6 @@
     <a href="/sources">Мои источники</a> |
     <a href="/feed">Моя лента</a> |
     <a href="/auth/logout">Выйти (${user.username})</a>
-</div>
-
-<!-- Фильтрация -->
-<div class="filters">
-    <a onclick="resetFeed(null)">📋 Все посты</a> |
-    <a onclick="resetFeed('true')">✅ Прочитанные</a> |
-    <a onclick="resetFeed('false')">🔵 Непрочитанные</a>
 </div>
 
 <!-- Контейнер для постов -->

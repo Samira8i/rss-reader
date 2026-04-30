@@ -26,10 +26,8 @@ public class User {
     @Column(name = "github_id", unique = true)
     private String githubId;
 
-    // Конструкторы
     public User() {}
 
-    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

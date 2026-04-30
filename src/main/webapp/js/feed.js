@@ -1,18 +1,9 @@
-// feed.js - бесконечная лента с РАБОТАЮЩИМИ фильтрами
+// feed.js - бесконечная лента (без фильтрации)
 
 let currentPage = 0;
 let isLoading = false;
 let hasMore = true;
-let currentReadFilter = null;  // null = все, true = прочитанные, false = непрочитанные
 let pageSize = 10;
-
-function resetFeed(readValue) {
-    currentPage = 0;
-    hasMore = true;
-    currentReadFilter = readValue;
-    document.getElementById('posts-container').innerHTML = '';
-    loadMorePosts();
-}
 
 function loadMorePosts() {
     if (isLoading || !hasMore) return;
@@ -21,17 +12,6 @@ function loadMorePosts() {
     document.getElementById('loading').style.display = 'block';
 
     let url = '/api/feed?page=' + currentPage + '&size=' + pageSize;
-
-    // Добавляем параметр read только если фильтр активен
-    if (currentReadFilter === true) {
-        url += '&read=true';
-        console.log('Фильтр: ТОЛЬКО ПРОЧИТАННЫЕ');
-    } else if (currentReadFilter === false) {
-        url += '&read=false';
-        console.log('Фильтр: ТОЛЬКО НЕПРОЧИТАННЫЕ');
-    } else {
-        console.log('Фильтр: ВСЕ ПОСТЫ');
-    }
 
     console.log('Загружаем URL:', url);
 
@@ -73,12 +53,15 @@ function renderPosts(posts) {
         var sourceName = escapeHtml(post.sourceName) || 'Неизвестный источник';
         var description = escapeHtml(post.description) ? escapeHtml(post.description).substring(0, 200) : 'Описание отсутствует';
 
+        var statusText = post.read ? '✅ Прочитано' : '🔵 Новое';
+        var statusClass = post.read ? 'read' : 'unread';
+
         container.innerHTML += `
             <div class="post-item">
                 <h3><a href="/feed/post/${post.id}">${title}</a></h3>
                 <div class="post-meta">
                     <span>📰 ${sourceName}</span>
-                    <span>${post.read ? '✅ Прочитано' : '🔵 Новое'}</span>
+                    <span class="read-status ${statusClass}">${statusText}</span>
                     <span>📅 ${postDate}</span>
                 </div>
                 <div class="post-description"><p>${description}</p></div>

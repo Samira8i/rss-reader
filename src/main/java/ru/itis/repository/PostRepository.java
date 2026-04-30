@@ -18,27 +18,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "ORDER BY p.publishedAt DESC NULLS LAST, p.createdAt DESC")
     List<Post> findByUserIdOrderByDate(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT p FROM Post p " +
-            "JOIN FETCH p.source s " +
-            "WHERE s.user.id = :userId AND p.read = :read " +
-            "ORDER BY p.publishedAt DESC NULLS LAST, p.createdAt DESC")
-    List<Post> findByUserIdAndReadStatus(@Param("userId") Long userId,
-                                         @Param("read") boolean read,
-                                         Pageable pageable);
+    // ✅ ИСПРАВЛЕННЫЙ метод подсчета
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.source.user.id = :userId")
+    long countByUserId(@Param("userId") Long userId);
 
-    long countBySourceUser_Id(Long userId);
-    long countBySourceUser_IdAndRead(Long userId, boolean read);
-
-    // ✅ ИСПРАВЛЕНО: добавлены @Modifying и @Transactional
     @Modifying
     @Transactional
     @Query("UPDATE Post p SET p.read = true WHERE p.id = :postId AND p.source.user.id = :userId")
     void markAsRead(@Param("postId") Long postId, @Param("userId") Long userId);
 
-    // ✅ Метод для загрузки поста с источником и пользователем
     @Query("SELECT p FROM Post p " +
             "JOIN FETCH p.source s " +
             "JOIN FETCH s.user u " +
             "WHERE p.id = :postId")
     Optional<Post> findByIdWithSourceAndUser(@Param("postId") Long postId);
+
+    boolean existsByGuidAndSourceId(String guid, Long sourceId);
 }

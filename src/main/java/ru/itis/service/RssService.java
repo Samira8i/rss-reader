@@ -4,11 +4,12 @@ import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.itis.dto.RssSourceForm;
-import ru.itis.exception.SourceAlreadyExistsException;
 import ru.itis.exception.InvalidRssUrlException;
+import ru.itis.exception.SourceAlreadyExistsException;
 import ru.itis.model.Post;
 import ru.itis.model.RssSource;
 import ru.itis.model.User;
@@ -89,30 +90,8 @@ public class RssService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public List<Post> getUserFeed(Long userId, int page, int pageSize, Boolean read) {
-        // Обновляем источники (получаем новые посты)
-        updateAllUserSources(userId);
-
-        org.springframework.data.domain.Pageable pageable =
-                org.springframework.data.domain.PageRequest.of(page, pageSize);
-
-        if (read != null) {
-            return postRepository.findByUserIdAndReadStatus(userId, read, pageable);
-        }
-        return postRepository.findByUserIdOrderByDate(userId, pageable);
-    }
-
-    @Transactional(readOnly = true)
-    public int getUserFeedCount(Long userId, Boolean read) {
-        if (read != null) {
-            return (int) postRepository.countBySourceUser_IdAndRead(userId, read);
-        }
-        return (int) postRepository.countBySourceUser_Id(userId);
-    }
-
     @Transactional
-    public void updateAllUserSources(Long userId) {
+    public void checkForUpdates(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
@@ -124,6 +103,22 @@ public class RssService {
                 System.err.println("Ошибка при обновлении источника " + source.getId() + ": " + e.getMessage());
             }
         }
+    }
+
+    // ✅ ИСПРАВЛЕНО: убрали параметр read
+    @Transactional(readOnly = true)
+    public List<Post> getUserFeed(Long userId, int page, int pageSize) {
+        System.out.println(">>> getUserFeed: userId=" + userId + ", page=" + page);
+        PageRequest pageable = PageRequest.of(page, pageSize);
+        return postRepository.findByUserIdOrderByDate(userId, pageable);
+    }
+
+    // ✅ ИСПРАВЛЕНО: убрали параметр read
+    @Transactional(readOnly = true)
+    public int getUserFeedCount(Long userId) {
+        int count = (int) postRepository.countByUserId(userId);  // ← исправлено!
+        System.out.println(">>> getUserFeedCount: userId=" + userId + ", total count=" + count);
+        return count;
     }
 
     @Transactional(readOnly = true)
@@ -155,12 +150,7 @@ public class RssService {
             List<Post> newPosts = new ArrayList<>();
 
             for (SyndEntry entry : feed.getEntries()) {
-                // Проверяем, есть ли уже такой пост по GUID
-                boolean exists = postRepository.findAll().stream()
-                        .anyMatch(p -> p.getGuid().equals(entry.getUri()) &&
-                                p.getSource().getId().equals(sourceId));
-
-                if (exists) {
+                if (postRepository.existsByGuidAndSourceId(entry.getUri(), sourceId)) {
                     continue;
                 }
 
@@ -181,9 +171,9 @@ public class RssService {
 
             if (!newPosts.isEmpty()) {
                 postRepository.saveAll(newPosts);
+                System.out.println(">>> Добавлено новых постов для sourceId=" + sourceId + ": " + newPosts.size());
             }
 
-            // Обновляем время последней проверки
             source.setLastCheckedAt(LocalDateTime.now());
             rssSourceRepository.save(source);
 

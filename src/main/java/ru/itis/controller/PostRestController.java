@@ -24,24 +24,30 @@ public class PostRestController {
         this.userService = userService;
     }
 
+    // ✅ ИСПРАВЛЕНО: убрали параметр read
     @GetMapping("/feed")
     public ResponseEntity<Map<String, Object>> getFeed(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) Boolean read) {
+            @RequestParam(defaultValue = "10") int size) {
 
         User user = userService.getCurrentUser();
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
 
-        List<PostResponse> posts = rssService.getUserFeed(user.getId(), page, size, read)
+        // Обновляем источники
+        //rssService.checkForUpdates(user.getId());
+
+        // Получаем посты (без фильтрации)
+        List<PostResponse> posts = rssService.getUserFeed(user.getId(), page, size)
                 .stream()
                 .map(PostResponse::from)
                 .collect(Collectors.toList());
 
-        int total = rssService.getUserFeedCount(user.getId(), read);
+        int total = rssService.getUserFeedCount(user.getId());
         boolean hasMore = (page + 1) * size < total;
+
+        System.out.println(">>> Ответ: posts=" + posts.size() + ", total=" + total + ", hasMore=" + hasMore);
 
         Map<String, Object> response = new HashMap<>();
         response.put("posts", posts);
