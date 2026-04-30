@@ -2,21 +2,22 @@ package ru.itis.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 import ru.itis.model.Post;
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    // ✅ ИСПРАВЛЕНО: добавлен JOIN FETCH
     @Query("SELECT p FROM Post p " +
             "JOIN FETCH p.source s " +
             "WHERE s.user.id = :userId " +
             "ORDER BY p.publishedAt DESC NULLS LAST, p.createdAt DESC")
     List<Post> findByUserIdOrderByDate(@Param("userId") Long userId, Pageable pageable);
 
-    // ✅ ИСПРАВЛЕНО: добавлен JOIN FETCH
     @Query("SELECT p FROM Post p " +
             "JOIN FETCH p.source s " +
             "WHERE s.user.id = :userId AND p.read = :read " +
@@ -28,6 +29,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     long countBySourceUser_Id(Long userId);
     long countBySourceUser_IdAndRead(Long userId, boolean read);
 
+    // ✅ ИСПРАВЛЕНО: добавлены @Modifying и @Transactional
+    @Modifying
+    @Transactional
     @Query("UPDATE Post p SET p.read = true WHERE p.id = :postId AND p.source.user.id = :userId")
     void markAsRead(@Param("postId") Long postId, @Param("userId") Long userId);
+
+    // ✅ Метод для загрузки поста с источником и пользователем
+    @Query("SELECT p FROM Post p " +
+            "JOIN FETCH p.source s " +
+            "JOIN FETCH s.user u " +
+            "WHERE p.id = :postId")
+    Optional<Post> findByIdWithSourceAndUser(@Param("postId") Long postId);
 }

@@ -1,15 +1,15 @@
-// feed.js - бесконечная лента
+// feed.js - бесконечная лента с РАБОТАЮЩИМИ фильтрами
 
 let currentPage = 0;
 let isLoading = false;
 let hasMore = true;
-let currentStatus = null;
+let currentReadFilter = null;  // null = все, true = прочитанные, false = непрочитанные
 let pageSize = 10;
 
-function resetFeed(status) {
+function resetFeed(readValue) {
     currentPage = 0;
     hasMore = true;
-    currentStatus = status;
+    currentReadFilter = readValue;
     document.getElementById('posts-container').innerHTML = '';
     loadMorePosts();
 }
@@ -21,27 +21,29 @@ function loadMorePosts() {
     document.getElementById('loading').style.display = 'block';
 
     let url = '/api/feed?page=' + currentPage + '&size=' + pageSize;
-    if (currentStatus === 'read') url += '&read=true';
-    if (currentStatus === 'unread') url += '&read=false';
 
-    console.log('Загрузка: ' + url);
+    // Добавляем параметр read только если фильтр активен
+    if (currentReadFilter === true) {
+        url += '&read=true';
+        console.log('Фильтр: ТОЛЬКО ПРОЧИТАННЫЕ');
+    } else if (currentReadFilter === false) {
+        url += '&read=false';
+        console.log('Фильтр: ТОЛЬКО НЕПРОЧИТАННЫЕ');
+    } else {
+        console.log('Фильтр: ВСЕ ПОСТЫ');
+    }
 
-    fetch(url, {
-        method: 'GET',
-        credentials: 'same-origin',  // ← Важно для передачи cookies
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    console.log('Загружаем URL:', url);
+
+    fetch(url)
         .then(function(response) {
-            console.log('Статус ответа:', response.status);
             if (!response.ok) {
                 throw new Error('Ошибка ' + response.status);
             }
             return response.json();
         })
         .then(function(data) {
-            console.log('Получено постов:', data.posts ? data.posts.length : 0);
+            console.log('Получено постов:', data.posts.length, 'hasMore:', data.hasMore);
             renderPosts(data.posts);
             hasMore = data.hasMore;
             currentPage++;
@@ -87,7 +89,6 @@ function renderPosts(posts) {
     });
 }
 
-// Ждем загрузки DOM
 document.addEventListener('DOMContentLoaded', function() {
     var sentinel = document.getElementById('sentinel');
     if (sentinel) {

@@ -15,6 +15,7 @@ public class FeedController {
     private final UserService userService;
     private final RssService rssService;
 
+    // Исправленный конструктор: сначала userService, потом rssService
     public FeedController(UserService userService, RssService rssService) {
         this.userService = userService;
         this.rssService = rssService;
@@ -28,10 +29,7 @@ public class FeedController {
             return "redirect:/auth/login";
         }
 
-        // Убедимся, что user точно передается в модель
         model.addAttribute("user", user);
-
-        // Добавим в лог для отладки
         System.out.println("Пользователь зашел на /feed: " + user.getUsername());
 
         return "feed";
@@ -52,6 +50,7 @@ public class FeedController {
             model.addAttribute("user", user);
             return "post";
         } catch (Exception e) {
+            e.printStackTrace();
             model.addAttribute("error", "Пост не найден или у вас нет доступа");
             return "redirect:/feed";
         }

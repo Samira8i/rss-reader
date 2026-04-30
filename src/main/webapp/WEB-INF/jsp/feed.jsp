@@ -49,8 +49,8 @@
 <!-- Фильтрация -->
 <div class="filters">
     <a onclick="resetFeed(null)">📋 Все посты</a> |
-    <a onclick="resetFeed('read')">✅ Прочитанные</a> |
-    <a onclick="resetFeed('unread')">🔵 Непрочитанные</a>
+    <a onclick="resetFeed('true')">✅ Прочитанные</a> |
+    <a onclick="resetFeed('false')">🔵 Непрочитанные</a>
 </div>
 
 <!-- Контейнер для постов -->

@@ -31,9 +31,6 @@ public class PostRestController {
             @RequestParam(required = false) Boolean read) {
 
         User user = userService.getCurrentUser();
-
-        System.out.println("REST запрос /api/feed от пользователя: " + (user != null ? user.getUsername() : "null"));
-
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
@@ -44,13 +41,13 @@ public class PostRestController {
                 .collect(Collectors.toList());
 
         int total = rssService.getUserFeedCount(user.getId(), read);
+        boolean hasMore = (page + 1) * size < total;
 
         Map<String, Object> response = new HashMap<>();
         response.put("posts", posts);
-        response.put("hasMore", (page + 1) * size < total);
+        response.put("hasMore", hasMore);
         response.put("currentPage", page);
-
-        System.out.println("Отправлено постов: " + posts.size() + ", hasMore: " + ((page + 1) * size < total));
+        response.put("total", total);
 
         return ResponseEntity.ok(response);
     }

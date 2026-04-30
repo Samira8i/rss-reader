@@ -128,7 +128,7 @@ public class RssService {
 
     @Transactional(readOnly = true)
     public Post getPostById(Long postId, Long userId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdWithSourceAndUser(postId)
                 .orElseThrow(() -> new RuntimeException("Пост не найден"));
 
         if (!post.getSource().getUser().getId().equals(userId)) {
