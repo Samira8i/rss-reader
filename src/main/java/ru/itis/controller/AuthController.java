@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import ru.itis.dto.SignInForm;
 import ru.itis.dto.SignUpForm;
 import ru.itis.exception.UserAlreadyExistsException;
 import ru.itis.service.UserService;
@@ -25,20 +23,7 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String loginPage(@RequestParam(required = false) String error,
-                            @RequestParam(required = false) String logout,
-                            @RequestParam(required = false) String registered,
-                            Model model) {
-        if (error != null) {
-            model.addAttribute("error", "Неверное имя пользователя или пароль");
-        }
-        if (logout != null) {
-            model.addAttribute("message", "Вы успешно вышли из системы");
-        }
-        if (registered != null) {
-            model.addAttribute("message", "Регистрация успешна! Войдите в систему");
-        }
-        model.addAttribute("signInForm", new SignInForm());
+    public String loginPage() {
         return "login";
     }
 

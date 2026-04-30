@@ -32,18 +32,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Разрешаем все запросы без авторизации
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .anyRequest().permitAll()  // ← Временно разрешаем всё
                 )
-                // Настройка формы логина
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
                         .defaultSuccessUrl("/feed", true)
                         .permitAll()
                 )
-                // Настройка OAuth2
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/auth/login")
                         .defaultSuccessUrl("/feed", true)
@@ -51,13 +48,11 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                 )
-                // Настройка выхода
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .logoutSuccessUrl("/auth/login?logout=true")
                         .permitAll()
                 )
-                // Отключаем CSRF для POST запросов из форм
                 .csrf(csrf -> csrf.disable());
 
         return http.build();
