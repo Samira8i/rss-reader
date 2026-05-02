@@ -1,5 +1,3 @@
-// feed.js - бесконечная лента (без фильтрации)
-
 let currentPage = 0;
 let isLoading = false;
 let hasMore = true;
@@ -51,21 +49,25 @@ function renderPosts(posts) {
         var postDate = post.publishedAt ? new Date(post.publishedAt).toLocaleString() : 'Дата не указана';
         var title = escapeHtml(post.title) || 'Без названия';
         var sourceName = escapeHtml(post.sourceName) || 'Неизвестный источник';
-        var description = escapeHtml(post.description) ? escapeHtml(post.description).substring(0, 200) : 'Описание отсутствует';
+        var description = post.description || 'Описание отсутствует';
 
-        var statusText = post.read ? '✅ Прочитано' : '🔵 Новое';
+        if (description.length > 500) {
+            description = description.substring(0, 500) + '...';
+        }
+
+        var statusText = post.read ? 'Прочитано' : 'Новое';
         var statusClass = post.read ? 'read' : 'unread';
 
         container.innerHTML += `
             <div class="post-item">
                 <h3><a href="/feed/post/${post.id}">${title}</a></h3>
                 <div class="post-meta">
-                    <span>📰 ${sourceName}</span>
+                    <span>${sourceName}</span>
                     <span class="read-status ${statusClass}">${statusText}</span>
-                    <span>📅 ${postDate}</span>
+                    <span> ${postDate}</span>
                 </div>
-                <div class="post-description"><p>${description}</p></div>
-                <div class="post-link"><a href="${post.link}" target="_blank">📖 Читать оригинал →</a></div>
+                <div class="post-description">${description}</div>
+                <div class="post-link"><a href="${post.link}" target="_blank">Читать оригинал →</a></div>
                 <hr>
             </div>
         `;
@@ -79,6 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (entries[0].isIntersecting) {
                 loadMorePosts();
             }
+        }, {
+            rootMargin: '100px'
         });
         observer.observe(sentinel);
     }

@@ -41,7 +41,7 @@
     </div>
 
     <div class="post-link">
-        <a href="${post.link}" target="_blank" class="button">📖 Читать оригинал на сайте</a>
+        <a href="${post.link}" target="_blank" class="button">Читать оригинал на сайте</a>
     </div>
 
     <div class="back-link">

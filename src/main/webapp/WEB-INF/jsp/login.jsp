@@ -52,10 +52,9 @@
     <div class="error">${error}</div>
 </c:if>
 
-<!-- Кнопка входа через GitHub -->
 <div class="oauth-login">
     <a href="/oauth2/authorization/github" class="github-btn">
-        🐙 Войти через GitHub
+        Войти через GitHub
     </a>
 </div>
 

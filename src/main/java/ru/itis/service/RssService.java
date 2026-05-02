@@ -105,7 +105,6 @@ public class RssService {
         }
     }
 
-    // ✅ ИСПРАВЛЕНО: убрали параметр read
     @Transactional(readOnly = true)
     public List<Post> getUserFeed(Long userId, int page, int pageSize) {
         System.out.println(">>> getUserFeed: userId=" + userId + ", page=" + page);
@@ -113,7 +112,6 @@ public class RssService {
         return postRepository.findByUserIdOrderByDate(userId, pageable);
     }
 
-    // ✅ ИСПРАВЛЕНО: убрали параметр read
     @Transactional(readOnly = true)
     public int getUserFeedCount(Long userId) {
         int count = (int) postRepository.countByUserId(userId);  // ← исправлено!

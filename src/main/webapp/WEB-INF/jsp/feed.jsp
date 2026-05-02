@@ -46,16 +46,12 @@
     <a href="/auth/logout">Выйти (${user.username})</a>
 </div>
 
-<!-- Контейнер для постов -->
 <div id="posts-container"></div>
 
-<!-- Индикатор загрузки -->
-<div id="loading" class="loading">⏳ Загрузка...</div>
+<div id="loading" class="loading">Загрузка...</div>
 
-<!-- Маяк для определения прокрутки до конца -->
 <div id="sentinel" style="height: 20px;"></div>
 
-<!-- Подключаем JavaScript -->
 <script src="/js/feed.js"></script>
 </body>
 </html>

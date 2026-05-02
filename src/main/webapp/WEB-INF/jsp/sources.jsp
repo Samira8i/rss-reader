@@ -72,7 +72,7 @@
                     <td>${source.lastCheckedAt != null ? source.lastCheckedAt : "ещё не проверялся"}</td>
                     <td>
                         <form method="post" action="/sources/${source.id}/delete" style="display:inline;" onsubmit="return confirm('Удалить источник?');">
-                            <button type="submit" style="background-color: #cc0000;">🗑️ Удалить</button>
+                            <button type="submit" style="background-color: #cc0000;">Удалить</button>
                         </form>
                     </td>
                 </tr>

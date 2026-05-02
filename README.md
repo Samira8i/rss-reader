@@ -56,3 +56,20 @@ CREATE INDEX idx_rss_sources_user_id ON rss_sources(user_id);
 -- Для поиска сессий
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX idx_sessions_session_id ON sessions(session_id);
+
+
+запуск
+# Запустить контейнеры (сборка + запуск)
+docker-compose up --build
+
+# Или запустить в фоновом режиме
+docker-compose up -d --build
+
+# Посмотреть логи
+docker-compose logs -f
+
+# Остановить контейнеры
+docker-compose down
+
+
+http://localhost:8081/

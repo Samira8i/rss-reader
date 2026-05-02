@@ -17,16 +17,20 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "WHERE s.user.id = :userId " +
             "ORDER BY p.publishedAt DESC NULLS LAST, p.createdAt DESC")
     List<Post> findByUserIdOrderByDate(@Param("userId") Long userId, Pageable pageable);
+    //Pageable — пагинация на уровне SQL (LIMIT/OFFSET)
 
-    // ✅ ИСПРАВЛЕННЫЙ метод подсчета
+
+    //считает количество постов у пользователя для пагинации
     @Query("SELECT COUNT(p) FROM Post p WHERE p.source.user.id = :userId")
     long countByUserId(@Param("userId") Long userId);
 
+    //@Modifying — говорит Spring, что это UPDATE/INSERT/DELETE, а не SELECT
     @Modifying
     @Transactional
     @Query("UPDATE Post p SET p.read = true WHERE p.id = :postId AND p.source.user.id = :userId")
     void markAsRead(@Param("postId") Long postId, @Param("userId") Long userId);
 
+    //для страницы поста
     @Query("SELECT p FROM Post p " +
             "JOIN FETCH p.source s " +
             "JOIN FETCH s.user u " +

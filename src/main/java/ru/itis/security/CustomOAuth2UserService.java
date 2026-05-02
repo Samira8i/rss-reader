@@ -11,6 +11,8 @@ import ru.itis.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+
+//кастомная регистрация и получается юзернжймы связаны с обычным входом-то есть если человек с таким юзернеймом уже есть, то просто идет обновление
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
@@ -42,7 +44,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setGithubId(githubId);
             user.setCreatedAt(LocalDateTime.now());
             user.setPasswordHash("");
-            user = userRepository.save(user);
+            userRepository.save(user);
         } else if (user.getGithubId() == null) {
             user.setGithubId(githubId);
             if (user.getEmail() == null) {

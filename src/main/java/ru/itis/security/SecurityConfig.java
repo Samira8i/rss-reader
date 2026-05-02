@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import ru.itis.model.User;
 import ru.itis.repository.UserRepository;
 
 @Configuration
@@ -30,10 +33,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
+        return new HandlerMappingIntrospector();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+
         http
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()  // ← Временно разрешаем всё
+                        .requestMatchers(mvcMatcherBuilder.pattern("/auth/login")).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern("/auth/register")).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern("/css/**")).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern("/js/**")).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern("/")).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/auth/login")
@@ -61,7 +76,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            var user = userRepository.findByUsername(username)
+            User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
             return org.springframework.security.core.userdetails.User.builder()

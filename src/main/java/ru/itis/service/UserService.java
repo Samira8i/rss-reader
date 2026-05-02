@@ -5,9 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.itis.dto.SignInForm;
 import ru.itis.dto.SignUpForm;
-import ru.itis.exception.InvalidCredentialsException;
 import ru.itis.exception.UserAlreadyExistsException;
 import ru.itis.model.User;
 import ru.itis.repository.UserRepository;
@@ -32,7 +30,6 @@ public class UserService {
         User user = new User();
         user.setUsername(form.getUsername());
 
-        // BCrypt хэширование (соль внутри)
         String hashedPassword = BCrypt.hashpw(form.getPassword(), BCrypt.gensalt());
         user.setPasswordHash(hashedPassword);
 

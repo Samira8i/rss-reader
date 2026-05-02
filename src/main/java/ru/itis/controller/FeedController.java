@@ -15,7 +15,6 @@ public class FeedController {
     private final UserService userService;
     private final RssService rssService;
 
-    // Исправленный конструктор: сначала userService, потом rssService
     public FeedController(UserService userService, RssService rssService) {
         this.userService = userService;
         this.rssService = rssService;
@@ -31,7 +30,6 @@ public class FeedController {
         rssService.checkForUpdates(user.getId());
 
         model.addAttribute("user", user);
-        System.out.println("Пользователь зашел на /feed: " + user.getUsername());
 
         return "feed";
     }
